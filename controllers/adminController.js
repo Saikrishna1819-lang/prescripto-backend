@@ -7,7 +7,7 @@ const addDoctor=async(req,res)=>{
     try{
         const {name,email,password,speciality,degree,experience, about,fees,address,available }=req.body
         const imageFile=req.file
-        if(!name||!email||!password||!speciality||!degree||!experience||!about||!fees||!address||!available)
+        if(!name||!email||!password||!speciality||!degree||!experience||!about||!fees||!address)
         {
             return res.json({success:false,message:"Missing Details"})
         }
@@ -47,7 +47,7 @@ const addDoctor=async(req,res)=>{
 
         const newDoctor=new doctorModel(doctorData)
         await newDoctor.save()
-        res.json({succcess:true,message:"Doctor added sucessfully"})
+        res.json({success:true,message:"Doctor added sucessfully"})
 
 
     } catch(error){
@@ -78,6 +78,18 @@ const loginAdmin=async(req,res)=>{
     res.json({success:false,message:error.message})
   }
     
-
 }
-export {addDoctor,loginAdmin} 
+
+// Api to get all the doctors list for admin panel
+
+const allDoctors=async(req,res)=>{
+    try{
+        const doctors=await doctorModel.find({}).select('-password')
+        res.json({success:true,doctors})
+    } catch(error){
+    res.json({success:false,message:error.message})
+  }
+    
+}
+
+export {addDoctor,loginAdmin,allDoctors} 

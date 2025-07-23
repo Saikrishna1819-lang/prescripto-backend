@@ -36,7 +36,7 @@ const doctorSchema=new mongoose.Schema({
     available:
     {
         type:Boolean,
-        required:true,
+        default:true,
     },
     fees:{
         type:Number,
@@ -56,5 +56,5 @@ const doctorSchema=new mongoose.Schema({
     }
 },{minimize:false})
 
-const doctormodel=mongoose.model('doctor',doctorSchema)
+const doctormodel=mongoose.models.doctor||mongoose.model('doctor',doctorSchema)
 export default doctormodel
