@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken"
 import {v2 as cloudinary} from "cloudinary"
 import userModel from "../models/userModel.js"
 import doctormodel from "../models/doctorModel.js"
+import razorpay from "razorpay"
 import appointmentModel from "../models/appointmentModel.js"
 const registerUser  =async(req,res)=>{
     try{
@@ -181,6 +182,59 @@ const listAppointment=async(req,res)=>{
   }
 
 }
+const cancelAppointment=async(req,res)=>{
+ try {
+   const userId=req.userId
+  const {appointmentId}=req.body
+  const appointmentData=await appointmentModel.findById(appointmentId)
+  // verify application user
+  if(appointmentData.userId!==userId){
+    return res.json({success:"false",message:"Unauthorized action"})
+
+  }
+  await appointmentModel.findByIdAndUpdate(appointmentId,{cancelled:true})
+  const {docId,slotDate,slotTime}=appointmentData
+  const doctorData=await doctormodel.findById(docId)
+  let slots_booked=doctorData.slots_booked
+  slots_booked[slotDate]=slots_booked[slotDate].filter(e=> e!==slotTime)
+  await doctormodel.findByIdAndUpdate(docId,{slots_booked})
+  res.json({success:true,message:"Appointment Cancelled"})
+
+ } catch (error) {
+  res.json({success:false,message:error.message})
+  }
+ }
+
+ const razorpayInstance=new razorpay({
+  key_id:process.env.RAZORPAY_KEY_ID,
+  key_secret:process.env.RAZORPAY_SECRET
+ })
+
+//   api to make payment of appointment using razorpay
+
+const paymentRazorpay=async(req,res)=>{
+  try {
+    console.log("sai krishna")
+    const {appointmentId}=req.body
+  const appointmentData=await appointmentModel.findById(appointmentId)
+  if(!appointmentData|| appointmentData.cancelled){
+    return res.json({success:false,message:"Appointment Cancelled o not found"})
+
+  }
+
+  const options={
+    amount:appointmentData.amount*100,
+    currency:process.env.CURRENCY,
+    receipt:appointmentId, 
+  }
+  const order=await razorpayInstance.orders.create(options)
+  res.json({success:true,order})
+  
+  } catch (error) {
+    res.json({success:false,message:error.message})
+  }
+}
 
 
-export {registerUser,loginUser,getProfile,updateProfile,bookAppointment,listAppointment}
+
+export {registerUser,loginUser,getProfile,updateProfile,bookAppointment,listAppointment,cancelAppointment,paymentRazorpay}

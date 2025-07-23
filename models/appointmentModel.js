@@ -32,7 +32,7 @@ import mongoose from 'mongoose'
         type:Number,
         required:true
     },
-    canclelled:{
+    cancelled:{
         type:Boolean,
         default:false
     },
