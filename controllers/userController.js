@@ -214,7 +214,7 @@ const cancelAppointment=async(req,res)=>{
 
 const paymentRazorpay=async(req,res)=>{
   try {
-    console.log("sai krishna")
+   
     const {appointmentId}=req.body
   const appointmentData=await appointmentModel.findById(appointmentId)
   if(!appointmentData|| appointmentData.cancelled){
@@ -235,6 +235,31 @@ const paymentRazorpay=async(req,res)=>{
   }
 }
 
+const verifyRazorPay=async(req,res)=>{
+  try{
+    const {razorpay_order_id}=req.body
+    const orderInfo=await razorpayInstance.orders.fetch(razorpay_order_id)
+    if(orderInfo.status==='paid'){
+      
+      
+      await appointmentModel.findByIdAndUpdate(orderInfo.receipt,{payment:true})
+      res.json({success:true,message:"Payment successful"})
+    }
+    else
+    {
+      res.json({success:false,message:"Payment failed"})
+    }
+    
+  }
+  catch(error){
+    
+    console.log(error.message);
+    res.json({success:false,message:error.message})
+    
+  } 
+
+}
 
 
-export {registerUser,loginUser,getProfile,updateProfile,bookAppointment,listAppointment,cancelAppointment,paymentRazorpay}
+
+export {registerUser,loginUser,getProfile,updateProfile,bookAppointment,listAppointment,cancelAppointment,paymentRazorpay,verifyRazorPay}
