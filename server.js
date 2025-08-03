@@ -17,7 +17,25 @@ connectCloudinary()
 // middlewares
 
 app.use(express.json())
-app.use(cors());
+const allowedOrigins = [
+  "https://prescripto-admin-qp6n.onrender.com",
+  "https://prescripto-0w3n.onrender.com/"               
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
+  })
+);
+
 
 // api endpoints
 app.use('/api/admin',adminRouter)
