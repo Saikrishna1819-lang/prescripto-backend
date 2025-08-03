@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken"
 import {v2 as cloudinary} from "cloudinary"
 import doctormodel from '../models/doctorModel.js'
 import appointmentModel from "../models/appointmentModel.js"
+import userModel from "../models/userModel.js"
 const addDoctor=async(req,res)=>{
     try{
         const {name,email,password,speciality,degree,experience, about,fees,address,available }=req.body
@@ -46,7 +47,7 @@ const addDoctor=async(req,res)=>{
             date:Date.now()
         }
 
-        const newDoctor=new doctorModel(doctorData)
+        const newDoctor=new doctormodel(doctorData)
         await newDoctor.save()
         res.json({success:true,message:"Doctor added sucessfully"})
 
@@ -85,7 +86,7 @@ const loginAdmin=async(req,res)=>{
 
 const allDoctors=async(req,res)=>{
     try{
-        const doctors=await doctorModel.find({}).select('-password')
+        const doctors=await doctormodel.find({}).select('-password')
         res.json({success:true,doctors})
     } catch(error){
     res.json({success:false,message:error.message})
@@ -125,4 +126,19 @@ const allDoctors=async(req,res)=>{
   }
  }
 
-export {addDoctor,loginAdmin,allDoctors,appointmentsAdmin,appointmentCancel} 
+
+ const adminDashboard=async(req,res)=>{
+    const doctors=await doctormodel.find({})
+    const users=await userModel.find({})
+    const appointments=await appointmentModel.find({})
+    const dashData={
+        doctors:doctors.length,
+        patients:users.length,
+        appointments:appointments.length,
+        latestAppointments:appointments.reverse().slice(0,5)
+    }
+    res.json({success:true,dashData})
+
+ }
+
+export {addDoctor,loginAdmin,allDoctors,adminDashboard,appointmentsAdmin,appointmentCancel} 
