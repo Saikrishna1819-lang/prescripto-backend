@@ -19,7 +19,7 @@ connectCloudinary()
 app.use(express.json())
 const allowedOrigins = [
   "https://prescripto-admin-qp6n.onrender.com",
-  "https://prescripto-0w3n.onrender.com/"               
+  "https://prescripto-0w3n.onrender.com"               
 ];
 
 app.use(
